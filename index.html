@@ -103,26 +103,29 @@
   </div>
 
   <script>
-    /* ===== EXAM DATES (IST-safe, GitHub Pages safe) ===== */
+    /* ===== EXAM DATES (IST-safe) ===== */
     // May 3, 2026 – 05:30 IST
     const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
     // May 2, 2027 – 05:30 IST
     const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
     function formatDuration(seconds) {
-      seconds = Math.max(0, Math.ceil(seconds));
+      // 🔴 Show decimals for small values (live visible)
+      if (seconds < 60) {
+        return seconds.toFixed(2) + "s";
+      }
+
+      seconds = Math.ceil(seconds);
 
       const days = Math.floor(seconds / 86400);
       seconds %= 86400;
       const hours = Math.floor(seconds / 3600);
       seconds %= 3600;
       const minutes = Math.floor(seconds / 60);
-      const secs = seconds % 60;
 
       if (days > 0) return `${days}d ${hours}h`;
       if (hours > 0) return `${hours}h ${minutes}m`;
-      if (minutes > 0) return `${minutes}m ${secs}s`;
-      return `${secs}s`;
+      return `${minutes}m`;
     }
 
     function updateTimeValue() {
@@ -152,7 +155,7 @@
     }
 
     updateTimeValue();
-    setInterval(updateTimeValue, 1000); // 🔴 LIVE-LIVE updates
+    setInterval(updateTimeValue, 1000); // 🔴 LIVE-LIVE
   </script>
 </body>
 </html>
