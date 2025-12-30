@@ -1,180 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Time Value Awareness — Live</title>
+  <meta charset="UTF-8" />
+  <title>Time Value Awareness</title>
 
-<style>
-  :root {
-    --bg: #ffffff;
-    --card: rgba(0,0,0,0.03);
-    --border: rgba(0,0,0,0.08);
-    --text: #111;
-    --muted: rgba(0,0,0,0.55);
-  }
-
-  @media (prefers-color-scheme: dark) {
+  <style>
     :root {
-      --bg: #0f1115;
-      --card: rgba(255,255,255,0.03);
-      --border: rgba(255,255,255,0.06);
-      --text: #e8e8e8;
-      --muted: rgba(255,255,255,0.6);
+      --bg: #ffffff;
+      --card: rgba(0, 0, 0, 0.03);
+      --border: rgba(0, 0, 0, 0.08);
+      --text: #111111;
+      --muted: rgba(0, 0, 0, 0.55);
     }
-  }
 
-  body {
-    margin: 0;
-    padding: 14px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, Inter, sans-serif;
-  }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --card: rgba(255, 255, 255, 0.03);
+        --border: rgba(255, 255, 255, 0.06);
+        --text: #e8e8e8;
+        --muted: rgba(255, 255, 255, 0.6);
+      }
+    }
 
-  .container {
-    max-width: 320px;
-    border-radius: 14px;
-    padding: 14px 16px;
-    background: var(--card);
-    box-shadow: 0 0 0 1px var(--border);
-  }
+    body {
+      margin: 0;
+      padding: 14px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
+    }
 
-  .title {
-    font-size: 13px;
-    opacity: .7;
-    margin-bottom: 10px;
-  }
+    .container {
+      max-width: 320px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--card);
+      box-shadow: 0 0 0 1px var(--border);
+    }
 
-  .row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 13px;
-  }
+    .title {
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
 
-  .row + .row {
-    border-top: 1px solid var(--border);
-  }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+    }
 
-  .label { color: var(--muted); }
-  .value { font-variant-numeric: tabular-nums; }
+    .row + .row {
+      border-top: 1px solid var(--border);
+    }
 
-  /* ❤️ HEARTBEAT (SYNCED) */
-  .pulse {
-    animation: heartbeat 1s ease-in-out;
-    display: inline-block;
-  }
+    .label {
+      color: var(--muted);
+    }
 
-  @keyframes heartbeat {
-    0%   { transform: scale(1); }
-    35%  { transform: scale(1.12); }
-    60%  { transform: scale(0.98); }
-    100% { transform: scale(1); }
-  }
-</style>
+    .value {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .primary {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  </style>
 </head>
 
 <body>
-<div class="container">
-  <div class="title">Current Time Value (Live)</div>
+  <div class="container">
+    <div class="title">Current Time Value</div>
 
-  <div class="row">
-    <span class="label">1 second</span>
-    <span class="value" id="sec">—</span>
+    <div class="row">
+      <span class="label">1 second</span>
+      <span class="value" id="sec">—</span>
+    </div>
+
+    <div class="row">
+      <span class="label">10 minutes</span>
+      <span class="value" id="tenMin">—</span>
+    </div>
+
+    <div class="row primary">
+      <span class="label">1 hour</span>
+      <span class="value" id="hour">—</span>
+    </div>
+
+    <div class="row">
+      <span class="label">12 hours</span>
+      <span class="value" id="halfDay">—</span>
+    </div>
+
+    <div class="row">
+      <span class="label">1 day</span>
+      <span class="value" id="day">—</span>
+    </div>
   </div>
-  <div class="row">
-    <span class="label">10 minutes</span>
-    <span class="value" id="tenMin">—</span>
-  </div>
-  <div class="row">
-    <span class="label">1 hour</span>
-    <span class="value" id="hour">—</span>
-  </div>
-  <div class="row">
-    <span class="label">12 hours</span>
-    <span class="value" id="halfDay">—</span>
-  </div>
-  <div class="row">
-    <span class="label">1 day</span>
-    <span class="value" id="day">—</span>
-  </div>
-</div>
 
-<script>
-/* ===== EXAM DATES (IST-safe) ===== */
-const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
-const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
+  <script>
+    /* ===== EXAM DATES (IST-safe) ===== */
+    const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
+    const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
-let TVR = 0;
+    function formatDuration(totalSeconds) {
+      totalSeconds = Math.max(0, Math.floor(totalSeconds));
 
-/* ---------- FORMAT ---------- */
-function format(seconds) {
-  seconds = Math.ceil(seconds);
-  if (seconds < 60) return seconds.toFixed(2) + "s";
+      const days = Math.floor(totalSeconds / 86400);
+      totalSeconds %= 86400;
+      const hours = Math.floor(totalSeconds / 3600);
+      totalSeconds %= 3600;
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
 
-  const d = Math.floor(seconds / 86400);
-  seconds %= 86400;
-  const h = Math.floor(seconds / 3600);
-  seconds %= 3600;
-  const m = Math.floor(seconds / 60);
+      if (days > 0) return `${days}d ${hours}h`;
+      if (hours > 0) return `${hours}h ${minutes}m`;
+      if (minutes > 0) return `${minutes}m ${seconds}s`;
+      return `${seconds}s`;
+    }
 
-  if (d) return `${d}d ${h}h`;
-  if (h) return `${h}h ${m}m`;
-  return `${m}m`;
-}
+    function updateTimeValue() {
+      const now = new Date();
+      const remaining = (EXAM_2026 - now) / 1000;
+      const penalty = (EXAM_2027 - EXAM_2026) / 1000;
 
-/* ---------- TVR ---------- */
-function computeTVR() {
-  const now = new Date();
-  const remaining = (EXAM_2026 - now) / 1000;
-  const penalty = (EXAM_2027 - EXAM_2026) / 1000;
-  if (remaining <= 0) return null;
-  return (remaining + penalty) / remaining;
-}
+      if (remaining <= 0) {
+        document.querySelectorAll(".value").forEach(el => {
+          el.textContent = "Exam passed";
+        });
+        return;
+      }
 
-/* ---------- DISPLAY ---------- */
-function render() {
-  const live = (Date.now() % 1000) / 1000;
+      const TVR = (remaining + penalty) / remaining;
 
-  document.getElementById("sec").textContent =
-    (TVR + live).toFixed(2) + "s";
+      document.getElementById("sec").textContent =
+        formatDuration(1 * TVR);
 
-  document.getElementById("tenMin").textContent = format(600 * TVR);
-  document.getElementById("hour").textContent   = format(3600 * TVR);
-  document.getElementById("halfDay").textContent= format(43200 * TVR);
-  document.getElementById("day").textContent    = format(86400 * TVR);
-}
+      document.getElementById("tenMin").textContent =
+        formatDuration(600 * TVR);
 
-/* ---------- HEARTBEAT SYNC ---------- */
-function pulseNow() {
-  const el = document.getElementById("sec");
-  el.classList.remove("pulse");
-  void el.offsetWidth; // force reflow
-  el.classList.add("pulse");
-}
+      document.getElementById("hour").textContent =
+        formatDuration(3600 * TVR);
 
-/* ---------- START ---------- */
-function start() {
-  TVR = computeTVR();
-  render();
+      document.getElementById("halfDay").textContent =
+        formatDuration(43200 * TVR);
 
-  // Align heartbeat exactly to real second boundary
-  const delay = 1000 - (Date.now() % 1000);
+      document.getElementById("day").textContent =
+        formatDuration(86400 * TVR);
+    }
 
-  setTimeout(() => {
-    pulseNow();
-    setInterval(pulseNow, 1000);
-    setInterval(() => {
-      TVR = computeTVR();
-    }, 1000);
-  }, delay);
-
-  // Smooth numeric motion
-  setInterval(render, 50);
-}
-
-start();
-</script>
+    updateTimeValue();
+    setInterval(updateTimeValue, 1000); // 🔥 LIVE updates every second
+  </script>
 </body>
 </html>
