@@ -62,14 +62,16 @@
 
   /* 🔴 Heartbeat pulse */
   .pulse {
-    animation: pulse 1s infinite;
-  }
+  animation: heartbeat 1s ease-in-out infinite;
+  display: inline-block;
+}
 
-  @keyframes pulse {
-    0%   { opacity: 1; }
-    50%  { opacity: .6; }
-    100% { opacity: 1; }
-  }
+@keyframes heartbeat {
+  0%   { transform: scale(1);   text-shadow: none; }
+  40%  { transform: scale(1.08); text-shadow: 0 0 6px currentColor; }
+  70%  { transform: scale(1);   text-shadow: none; }
+  100% { transform: scale(1);   text-shadow: none; }
+}
 
   /* 📊 Sparkline */
   canvas {
