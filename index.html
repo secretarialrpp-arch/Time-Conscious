@@ -1,161 +1,61 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Time Value Awareness — Live</title>
+<script>
+  /* ===== EXAM DATES (IST-safe) ===== */
+  const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
+  const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
-  <style>
-    :root {
-      --bg: #ffffff;
-      --card: rgba(0, 0, 0, 0.03);
-      --border: rgba(0, 0, 0, 0.08);
-      --text: #111111;
-      --muted: rgba(0, 0, 0, 0.55);
+  function formatDuration(seconds) {
+    seconds = Math.max(0, seconds);
+
+    if (seconds < 60) {
+      return seconds.toFixed(2) + "s";
     }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0f1115;
-        --card: rgba(255, 255, 255, 0.03);
-        --border: rgba(255, 255, 255, 0.06);
-        --text: #e8e8e8;
-        --muted: rgba(255, 255, 255, 0.6);
-      }
+    seconds = Math.ceil(seconds);
+
+    const days = Math.floor(seconds / 86400);
+    seconds %= 86400;
+    const hours = Math.floor(seconds / 3600);
+    seconds %= 3600;
+    const minutes = Math.floor(seconds / 60);
+
+    if (days > 0) return `${days}d ${hours}h`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+  }
+
+  function updateTimeValue() {
+    const now = new Date();
+    const remaining = (EXAM_2026 - now) / 1000;
+    const penalty = (EXAM_2027 - EXAM_2026) / 1000;
+
+    if (!isFinite(remaining) || remaining <= 0) {
+      document.querySelectorAll(".value").forEach(el => {
+        el.textContent = "Exam passed";
+      });
+      return;
     }
 
-    body {
-      margin: 0;
-      padding: 14px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, Inter, system-ui, sans-serif;
-    }
+    const TVR = (remaining + penalty) / remaining;
 
-    .container {
-      max-width: 320px;
-      border-radius: 12px;
-      padding: 14px 16px;
-      background: var(--card);
-      box-shadow: 0 0 0 1px var(--border);
-    }
+    /* 🔴 LIVE TICK COMPONENT (0 → 1 every second) */
+    const liveTick = (Date.now() % 1000) / 1000;
 
-    .title {
-      font-size: 13px;
-      font-weight: 500;
-      opacity: 0.7;
-      margin-bottom: 10px;
-    }
+    document.getElementById("sec").textContent =
+      formatDuration(TVR + liveTick);
 
-    .row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 13px;
-    }
+    document.getElementById("tenMin").textContent =
+      formatDuration(600 * TVR);
 
-    .row + .row {
-      border-top: 1px solid var(--border);
-    }
+    document.getElementById("hour").textContent =
+      formatDuration(3600 * TVR);
 
-    .label {
-      color: var(--muted);
-    }
+    document.getElementById("halfDay").textContent =
+      formatDuration(43200 * TVR);
 
-    .value {
-      font-variant-numeric: tabular-nums;
-    }
+    document.getElementById("day").textContent =
+      formatDuration(86400 * TVR);
+  }
 
-    .primary {
-      font-size: 14px;
-      font-weight: 500;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="title">Current Time Value (Live)</div>
-
-    <div class="row">
-      <span class="label">1 second</span>
-      <span class="value" id="sec">—</span>
-    </div>
-
-    <div class="row">
-      <span class="label">10 minutes</span>
-      <span class="value" id="tenMin">—</span>
-    </div>
-
-    <div class="row primary">
-      <span class="label">1 hour</span>
-      <span class="value" id="hour">—</span>
-    </div>
-
-    <div class="row">
-      <span class="label">12 hours</span>
-      <span class="value" id="halfDay">—</span>
-    </div>
-
-    <div class="row">
-      <span class="label">1 day</span>
-      <span class="value" id="day">—</span>
-    </div>
-  </div>
-
-  <script>
-    /* ===== EXAM DATES (IST-safe) ===== */
-    // May 3, 2026 – 05:30 IST
-    const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
-    // May 2, 2027 – 05:30 IST
-    const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
-
-    function formatDuration(seconds) {
-      // 🔴 Show decimals for small values (live visible)
-      if (seconds < 60) {
-        return seconds.toFixed(2) + "s";
-      }
-
-      seconds = Math.ceil(seconds);
-
-      const days = Math.floor(seconds / 86400);
-      seconds %= 86400;
-      const hours = Math.floor(seconds / 3600);
-      seconds %= 3600;
-      const minutes = Math.floor(seconds / 60);
-
-      if (days > 0) return `${days}d ${hours}h`;
-      if (hours > 0) return `${hours}h ${minutes}m`;
-      return `${minutes}m`;
-    }
-
-    function updateTimeValue() {
-      const now = new Date();
-      const remaining = (EXAM_2026 - now) / 1000;
-      const penalty = (EXAM_2027 - EXAM_2026) / 1000;
-
-      if (!isFinite(remaining) || remaining <= 0) {
-        document.querySelectorAll(".value").forEach(el => {
-          el.textContent = "Exam passed";
-        });
-        return;
-      }
-
-      const TVR = (remaining + penalty) / remaining;
-
-      document.getElementById("sec").textContent =
-        formatDuration(1 * TVR);
-      document.getElementById("tenMin").textContent =
-        formatDuration(600 * TVR);
-      document.getElementById("hour").textContent =
-        formatDuration(3600 * TVR);
-      document.getElementById("halfDay").textContent =
-        formatDuration(43200 * TVR);
-      document.getElementById("day").textContent =
-        formatDuration(86400 * TVR);
-    }
-
-    updateTimeValue();
-    setInterval(updateTimeValue, 1000); // 🔴 LIVE-LIVE
-  </script>
-</body>
-</html>
+  updateTimeValue();
+  setInterval(updateTimeValue, 100); // 🔴 smooth live feel
+</script>
