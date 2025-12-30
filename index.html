@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Time Value Awareness</title>
+  <title>Time Value Awareness — Live</title>
 
   <style>
     :root {
@@ -74,7 +74,7 @@
 
 <body>
   <div class="container">
-    <div class="title">Current Time Value</div>
+    <div class="title">Current Time Value (Live)</div>
 
     <div class="row">
       <span class="label">1 second</span>
@@ -103,14 +103,14 @@
   </div>
 
   <script>
-    /* ===== EXAM DATES (IST-safe) ===== */
+    /* ===== EXAM DATES (IST-safe, GitHub Pages safe) ===== */
     // May 3, 2026 – 05:30 IST
     const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
     // May 2, 2027 – 05:30 IST
     const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
     function formatDuration(seconds) {
-      seconds = Math.max(0, Math.round(seconds));
+      seconds = Math.max(0, Math.ceil(seconds));
 
       const days = Math.floor(seconds / 86400);
       seconds %= 86400;
@@ -152,7 +152,7 @@
     }
 
     updateTimeValue();
-    setInterval(updateTimeValue, 60000);
+    setInterval(updateTimeValue, 1000); // 🔴 LIVE-LIVE updates
   </script>
 </body>
 </html>
