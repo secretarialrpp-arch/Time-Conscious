@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Time Value Awareness — Live</title>
 
 <style>
@@ -11,7 +12,6 @@
     --border: rgba(0,0,0,0.08);
     --text: #111;
     --muted: rgba(0,0,0,0.55);
-    --accent: #3b82f6;
   }
 
   @media (prefers-color-scheme: dark) {
@@ -60,25 +60,17 @@
   .label { color: var(--muted); }
   .value { font-variant-numeric: tabular-nums; }
 
-  /* 🔴 Heartbeat pulse */
+  /* ❤️ HEARTBEAT (SYNCED) */
   .pulse {
-  animation: heartbeat 1s ease-in-out infinite;
-  display: inline-block;
-}
+    animation: heartbeat 1s ease-in-out;
+    display: inline-block;
+  }
 
-@keyframes heartbeat {
-  0%   { transform: scale(1);   text-shadow: none; }
-  40%  { transform: scale(1.08); text-shadow: 0 0 6px currentColor; }
-  70%  { transform: scale(1);   text-shadow: none; }
-  100% { transform: scale(1);   text-shadow: none; }
-}
-
-  /* 📊 Sparkline */
-  canvas {
-    margin-top: 8px;
-    width: 100%;
-    height: 40px;
-    opacity: .85;
+  @keyframes heartbeat {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(1.12); }
+    60%  { transform: scale(0.98); }
+    100% { transform: scale(1); }
   }
 </style>
 </head>
@@ -89,7 +81,7 @@
 
   <div class="row">
     <span class="label">1 second</span>
-    <span class="value pulse" id="sec">—</span>
+    <span class="value" id="sec">—</span>
   </div>
   <div class="row">
     <span class="label">10 minutes</span>
@@ -107,8 +99,6 @@
     <span class="label">1 day</span>
     <span class="value" id="day">—</span>
   </div>
-
-  <canvas id="spark"></canvas>
 </div>
 
 <script>
@@ -117,11 +107,8 @@ const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
 const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
 let TVR = 0;
-let history = [];
 
-const canvas = document.getElementById("spark");
-const ctx = canvas.getContext("2d");
-
+/* ---------- FORMAT ---------- */
 function format(seconds) {
   seconds = Math.ceil(seconds);
   if (seconds < 60) return seconds.toFixed(2) + "s";
@@ -137,72 +124,57 @@ function format(seconds) {
   return `${m}m`;
 }
 
-/* 🔁 Compute TVR once per second */
+/* ---------- TVR ---------- */
 function computeTVR() {
   const now = new Date();
   const remaining = (EXAM_2026 - now) / 1000;
   const penalty = (EXAM_2027 - EXAM_2026) / 1000;
-
   if (remaining <= 0) return null;
   return (remaining + penalty) / remaining;
 }
 
-/* 🎨 Urgency color ramp */
-function urgencyColor(tvr) {
-  if (tvr < 2) return "#3b82f6";      // calm blue
-  if (tvr < 4) return "#f59e0b";      // amber
-  return "#ef4444";                  // red
-}
-
-/* 📊 Draw sparkline */
-function drawSparkline() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (history.length < 2) return;
-
-  const max = Math.max(...history);
-  const min = Math.min(...history);
-
-  ctx.beginPath();
-  history.forEach((v, i) => {
-    const x = (i / (history.length - 1)) * canvas.width;
-    const y = canvas.height - ((v - min) / (max - min)) * canvas.height;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-
-  ctx.strokeStyle = urgencyColor(TVR);
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-/* 🔴 Smooth display loop */
+/* ---------- DISPLAY ---------- */
 function render() {
-  const liveFrac = (Date.now() % 1000) / 1000;
+  const live = (Date.now() % 1000) / 1000;
 
   document.getElementById("sec").textContent =
-    (TVR + liveFrac).toFixed(2) + "s";
+    (TVR + live).toFixed(2) + "s";
 
   document.getElementById("tenMin").textContent = format(600 * TVR);
   document.getElementById("hour").textContent   = format(3600 * TVR);
   document.getElementById("halfDay").textContent= format(43200 * TVR);
   document.getElementById("day").textContent    = format(86400 * TVR);
-
-  document.querySelectorAll(".value").forEach(v => {
-    v.style.color = urgencyColor(TVR);
-  });
 }
 
-/* 🚀 Timers */
-setInterval(() => {
-  const t = computeTVR();
-  if (!t) return;
-  TVR = t;
-  history.push(TVR);
-  if (history.length > 60) history.shift();
-  drawSparkline();
-}, 1000);
+/* ---------- HEARTBEAT SYNC ---------- */
+function pulseNow() {
+  const el = document.getElementById("sec");
+  el.classList.remove("pulse");
+  void el.offsetWidth; // force reflow
+  el.classList.add("pulse");
+}
 
-setInterval(render, 50);
+/* ---------- START ---------- */
+function start() {
+  TVR = computeTVR();
+  render();
+
+  // Align heartbeat exactly to real second boundary
+  const delay = 1000 - (Date.now() % 1000);
+
+  setTimeout(() => {
+    pulseNow();
+    setInterval(pulseNow, 1000);
+    setInterval(() => {
+      TVR = computeTVR();
+    }, 1000);
+  }, delay);
+
+  // Smooth numeric motion
+  setInterval(render, 50);
+}
+
+start();
 </script>
 </body>
 </html>
