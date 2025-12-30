@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Time Value Awareness — Live</title>
 
 <style>
@@ -49,19 +50,19 @@
     gap: 6px;
   }
 
-  /* 🔴 Live red dot */
+  /* 🔴 Live dot */
   .live-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: var(--live);
-    animation: livePulse 1.2s ease-in-out infinite;
+    animation: pulse 1.2s ease-in-out infinite;
   }
 
-  @keyframes livePulse {
-    0%   { transform: scale(1);   opacity: 1; }
+  @keyframes pulse {
+    0%   { transform: scale(1); opacity: 1; }
     50%  { transform: scale(1.4); opacity: .5; }
-    100% { transform: scale(1);   opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
   .row {
@@ -77,11 +78,41 @@
 
   .label { color: var(--muted); }
   .value { font-variant-numeric: tabular-nums; }
+
+  /* 🌅 Day progress */
+  .day-wrap {
+    margin-top: 14px;
+  }
+
+  .day-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    opacity: .7;
+    margin-bottom: 4px;
+  }
+
+  .day-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .day-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #3b82f6, #ef4444);
+    border-radius: 999px;
+    transition: width 0.6s ease;
+  }
 </style>
 </head>
 
 <body>
 <div class="container">
+
   <div class="title">
     Current Time Value
     <span class="live-dot"></span>
@@ -108,10 +139,22 @@
     <span class="label">1 day</span>
     <span class="value" id="day">—</span>
   </div>
+
+  <!-- 🌅 Day Progress -->
+  <div class="day-wrap">
+    <div class="day-head">
+      <span>Day completed</span>
+      <span id="dayPercent">0%</span>
+    </div>
+    <div class="day-bar">
+      <div class="day-fill" id="dayFill"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  /* ===== EXAM DATES (IST-safe) ===== */
+  /* ===== Exam dates (IST safe) ===== */
   const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
   const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
@@ -151,8 +194,27 @@
     document.getElementById("day").textContent    = format(86400 * TVR);
   }
 
+  function updateDayProgress() {
+    const now = new Date();
+    const secondsToday =
+      now.getHours() * 3600 +
+      now.getMinutes() * 60 +
+      now.getSeconds();
+
+    const percent = (secondsToday / 86400) * 100;
+
+    document.getElementById("dayPercent").textContent =
+      percent.toFixed(0) + "%";
+
+    document.getElementById("dayFill").style.width =
+      percent + "%";
+  }
+
   updateTimeValue();
-  setInterval(updateTimeValue, 60000); // silent background refresh
+  updateDayProgress();
+
+  setInterval(updateTimeValue, 60000); // calm background update
+  setInterval(updateDayProgress, 1000); // live day sync
 </script>
 </body>
 </html>
