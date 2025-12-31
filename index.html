@@ -13,6 +13,9 @@
     --text: #111;
     --muted: rgba(0,0,0,0.55);
     --live: #ef4444;
+
+    --normal-bar: linear-gradient(90deg, #3b82f6, #ef4444);
+    --golden-bar: linear-gradient(90deg, #facc15, #f59e0b);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -39,6 +42,7 @@
     padding: 14px 16px;
     background: var(--card);
     box-shadow: 0 0 0 1px var(--border);
+    transition: opacity 0.6s ease;
   }
 
   .title {
@@ -79,10 +83,8 @@
   .label { color: var(--muted); }
   .value { font-variant-numeric: tabular-nums; }
 
-  /* 🌅 Day progress */
-  .day-wrap {
-    margin-top: 14px;
-  }
+  /* 🌅 Day Progress */
+  .day-wrap { margin-top: 14px; }
 
   .day-head {
     display: flex;
@@ -103,9 +105,15 @@
   .day-fill {
     height: 100%;
     width: 0%;
-    background: linear-gradient(90deg, #3b82f6, #ef4444);
+    background: var(--normal-bar);
     border-radius: 999px;
-    transition: width 0.6s ease;
+    transition: width 0.6s ease, background 0.6s ease, box-shadow 0.6s ease;
+  }
+
+  /* 🌟 Golden hour glow */
+  .golden {
+    background: var(--golden-bar) !important;
+    box-shadow: 0 0 8px rgba(250,204,21,0.45);
   }
 </style>
 </head>
@@ -119,28 +127,12 @@
     Live
   </div>
 
-  <div class="row">
-    <span class="label">1 second</span>
-    <span class="value" id="sec">—</span>
-  </div>
-  <div class="row">
-    <span class="label">10 minutes</span>
-    <span class="value" id="tenMin">—</span>
-  </div>
-  <div class="row">
-    <span class="label">1 hour</span>
-    <span class="value" id="hour">—</span>
-  </div>
-  <div class="row">
-    <span class="label">12 hours</span>
-    <span class="value" id="halfDay">—</span>
-  </div>
-  <div class="row">
-    <span class="label">1 day</span>
-    <span class="value" id="day">—</span>
-  </div>
+  <div class="row"><span class="label">1 second</span><span class="value" id="sec">—</span></div>
+  <div class="row"><span class="label">10 minutes</span><span class="value" id="tenMin">—</span></div>
+  <div class="row"><span class="label">1 hour</span><span class="value" id="hour">—</span></div>
+  <div class="row"><span class="label">12 hours</span><span class="value" id="halfDay">—</span></div>
+  <div class="row"><span class="label">1 day</span><span class="value" id="day">—</span></div>
 
-  <!-- 🌅 Day Progress -->
   <div class="day-wrap">
     <div class="day-head">
       <span>Day completed</span>
@@ -154,19 +146,21 @@
 </div>
 
 <script>
-  /* ===== Exam dates (IST safe) ===== */
+  /* 🌟 Golden Hours */
+  const GOLDEN_WINDOWS = [
+    { start: 8,  end: 11 }, // Primary
+    { start: 16, end: 18 }  // Secondary
+  ];
+
+  /* ===== Exam Dates ===== */
   const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
   const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
   function format(seconds) {
     seconds = Math.ceil(seconds);
-
-    const d = Math.floor(seconds / 86400);
-    seconds %= 86400;
-    const h = Math.floor(seconds / 3600);
-    seconds %= 3600;
+    const d = Math.floor(seconds / 86400); seconds %= 86400;
+    const h = Math.floor(seconds / 3600);  seconds %= 3600;
     const m = Math.floor(seconds / 60);
-
     if (d) return `${d}d ${h}h`;
     if (h) return `${h}h ${m}m`;
     if (m) return `${m}m`;
@@ -177,21 +171,13 @@
     const now = new Date();
     const remaining = (EXAM_2026 - now) / 1000;
     const penalty = (EXAM_2027 - EXAM_2026) / 1000;
-
-    if (!isFinite(remaining) || remaining <= 0) {
-      document.querySelectorAll(".value").forEach(v => {
-        v.textContent = "Exam passed";
-      });
-      return;
-    }
-
     const TVR = (remaining + penalty) / remaining;
 
-    document.getElementById("sec").textContent     = format(1 * TVR);
+    document.getElementById("sec").textContent = format(1 * TVR);
     document.getElementById("tenMin").textContent = format(600 * TVR);
-    document.getElementById("hour").textContent   = format(3600 * TVR);
-    document.getElementById("halfDay").textContent= format(43200 * TVR);
-    document.getElementById("day").textContent    = format(86400 * TVR);
+    document.getElementById("hour").textContent = format(3600 * TVR);
+    document.getElementById("halfDay").textContent = format(43200 * TVR);
+    document.getElementById("day").textContent = format(86400 * TVR);
   }
 
   function updateDayProgress() {
@@ -202,19 +188,26 @@
       now.getSeconds();
 
     const percent = (secondsToday / 86400) * 100;
+    const hour = now.getHours();
 
     document.getElementById("dayPercent").textContent =
       percent.toFixed(0) + "%";
 
-    document.getElementById("dayFill").style.width =
-      percent + "%";
+    const fill = document.getElementById("dayFill");
+    fill.style.width = percent + "%";
+
+    const isGolden = GOLDEN_WINDOWS.some(w =>
+      hour >= w.start && hour < w.end
+    );
+
+    fill.classList.toggle("golden", isGolden);
   }
 
   updateTimeValue();
   updateDayProgress();
 
-  setInterval(updateTimeValue, 60000); // calm background update
-  setInterval(updateDayProgress, 1000); // live day sync
+  setInterval(updateTimeValue, 60000);
+  setInterval(updateDayProgress, 1000);
 </script>
 </body>
 </html>
