@@ -12,10 +12,13 @@
     --border: rgba(0,0,0,0.08);
     --text: #111;
     --muted: rgba(0,0,0,0.55);
-    --live: #ef4444;
 
-    --normal-bar: linear-gradient(90deg, #3b82f6, #ef4444);
-    --golden-bar: linear-gradient(90deg, #facc15, #f59e0b);
+    --live-red: #ef4444;
+    --gold: #f59e0b;
+    --gold-soft: rgba(245,158,11,0.15);
+
+    --bar-normal: linear-gradient(90deg, #3b82f6, #ef4444);
+    --bar-golden: linear-gradient(90deg, #facc15, #f59e0b);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -38,11 +41,49 @@
 
   .container {
     max-width: 320px;
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 14px 16px;
     background: var(--card);
     box-shadow: 0 0 0 1px var(--border);
-    transition: opacity 0.6s ease;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.6s ease, box-shadow 0.6s ease;
+  }
+
+  /* 🌟 Golden Hour Mode */
+  .golden-mode {
+    background:
+      linear-gradient(
+        120deg,
+        var(--card),
+        var(--gold-soft),
+        var(--card)
+      );
+    box-shadow:
+      0 0 0 1px rgba(245,158,11,0.25),
+      0 0 18px rgba(245,158,11,0.25);
+  }
+
+  /* 🌟 Subtle shimmer */
+  .golden-mode::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      120deg,
+      transparent 40%,
+      rgba(255,255,255,0.12),
+      transparent 60%
+    );
+    animation: shimmer 6s linear infinite;
+  }
+
+  @keyframes shimmer {
+    from { transform: translateX(-30%); }
+    to   { transform: translateX(30%); }
   }
 
   .title {
@@ -52,15 +93,22 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    position: relative;
+    z-index: 1;
   }
 
-  /* 🔴 Live dot */
+  /* 🔴 / 🌟 Live dot */
   .live-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--live);
+    background: var(--live-red);
     animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .golden-mode .live-dot {
+    background: var(--gold);
+    box-shadow: 0 0 6px rgba(245,158,11,0.8);
   }
 
   @keyframes pulse {
@@ -74,6 +122,8 @@
     justify-content: space-between;
     padding: 6px 0;
     font-size: 13px;
+    position: relative;
+    z-index: 1;
   }
 
   .row + .row {
@@ -84,7 +134,7 @@
   .value { font-variant-numeric: tabular-nums; }
 
   /* 🌅 Day Progress */
-  .day-wrap { margin-top: 14px; }
+  .day-wrap { margin-top: 14px; position: relative; z-index: 1; }
 
   .day-head {
     display: flex;
@@ -105,21 +155,19 @@
   .day-fill {
     height: 100%;
     width: 0%;
-    background: var(--normal-bar);
+    background: var(--bar-normal);
     border-radius: 999px;
-    transition: width 0.6s ease, background 0.6s ease, box-shadow 0.6s ease;
+    transition: width 0.6s ease, background 0.6s ease;
   }
 
-  /* 🌟 Golden hour glow */
-  .golden {
-    background: var(--golden-bar) !important;
-    box-shadow: 0 0 8px rgba(250,204,21,0.45);
+  .golden-mode .day-fill {
+    background: var(--bar-golden);
   }
 </style>
 </head>
 
 <body>
-<div class="container">
+<div class="container" id="container">
 
   <div class="title">
     Current Time Value
@@ -148,8 +196,8 @@
 <script>
   /* 🌟 Golden Hours */
   const GOLDEN_WINDOWS = [
-    { start: 8,  end: 11 }, // Primary
-    { start: 16, end: 18 }  // Secondary
+    { start: 8,  end: 11 },
+    { start: 16, end: 18 }
   ];
 
   /* ===== Exam Dates ===== */
@@ -183,8 +231,8 @@
   function updateDayProgress() {
     const now = new Date();
     const secondsToday =
-      now.getHours() * 3600 +
-      now.getMinutes() * 60 +
+      now.getHours()*3600 +
+      now.getMinutes()*60 +
       now.getSeconds();
 
     const percent = (secondsToday / 86400) * 100;
@@ -192,15 +240,14 @@
 
     document.getElementById("dayPercent").textContent =
       percent.toFixed(0) + "%";
-
-    const fill = document.getElementById("dayFill");
-    fill.style.width = percent + "%";
+    document.getElementById("dayFill").style.width = percent + "%";
 
     const isGolden = GOLDEN_WINDOWS.some(w =>
       hour >= w.start && hour < w.end
     );
 
-    fill.classList.toggle("golden", isGolden);
+    document.getElementById("container")
+      .classList.toggle("golden-mode", isGolden);
   }
 
   updateTimeValue();
