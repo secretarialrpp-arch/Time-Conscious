@@ -1,204 +1,410 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Time Value Awareness — Live</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Value — Golden Aura</title>
+    
+    <style>
+        /* =========================================
+           THEME SETTINGS (System Adaptable)
+           ========================================= */
+        :root {
+            /* Default (Light Mode) - White Marble & Gold */
+            --bg-layer: #f7f7f5;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #ffffff 0%, #e6e4dc 100%);
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(184, 134, 11, 0.2); /* Darker gold border for visibility */
+            --card-shadow: 0 10px 30px rgba(184, 134, 11, 0.05);
+            
+            --text-main: #2d2d2d;
+            --text-muted: #888888;
+            --gold-accent: #b8860b; /* Dark Goldenrod */
+            --gold-gradient: linear-gradient(to bottom, #cfb53b 0%, #a07c12 100%);
+            
+            --particle-color: rgba(184, 134, 11, 0.3);
+            
+            --bar-bg: rgba(0, 0, 0, 0.06);
+            --bar-g1: #cc9900;
+            --bar-g2: #ffd700;
+            --bar-g3: #cc9900;
+        }
 
-<style>
-  :root {
-    --bg: #ffffff;
-    --card: rgba(0,0,0,0.03);
-    --border: rgba(0,0,0,0.08);
-    --text: #111;
-    --muted: rgba(0,0,0,0.55);
-    --live: #ef4444;
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* Dark Mode - Deep Void & Molten Gold */
+                --bg-layer: #050505;
+                --bg-gradient: radial-gradient(circle at 50% 0%, #1a1500 0%, #000000 80%);
+                --card-bg: rgba(10, 10, 10, 0.6);
+                --card-border: rgba(255, 215, 0, 0.15);
+                --card-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 215, 0, 0.02);
+                
+                --text-main: #e8e8e8;
+                --text-muted: rgba(255, 255, 255, 0.5);
+                --gold-accent: #ffd700;
+                --gold-gradient: linear-gradient(to bottom, #fff5c2 0%, #ffd700 50%, #b8860b 100%);
+                
+                --particle-color: rgba(255, 215, 0, 0.5);
+                
+                --bar-bg: rgba(255, 255, 255, 0.08);
+                --bar-g1: #b8860b;
+                --bar-g2: #ffe55c;
+                --bar-g3: #b8860b;
+            }
+        }
 
-    --normal-bar: linear-gradient(90deg, #3b82f6, #ef4444);
-    --golden-bar: linear-gradient(90deg, #facc15, #f59e0b);
-  }
+        /* =========================================
+           CORE STYLES
+           ========================================= */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-layer);
+            background-image: var(--bg-gradient);
+            color: var(--text-main);
+            /* Original Font Request */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f1115;
-      --card: rgba(255,255,255,0.03);
-      --border: rgba(255,255,255,0.06);
-      --text: #e8e8e8;
-      --muted: rgba(255,255,255,0.6);
-    }
-  }
+        /* Canvas stays behind everything */
+        #aura-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
 
-  body {
-    margin: 0;
-    padding: 14px;
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, Inter, sans-serif;
-  }
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 340px; /* Widget friendly max-width */
+            padding: 20px;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+            
+            border-radius: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            
+            /* Subtle breathing animation for the border */
+            animation: breathe-border 8s infinite ease-in-out;
+        }
 
-  .container {
-    max-width: 320px;
-    border-radius: 14px;
-    padding: 14px 16px;
-    background: var(--card);
-    box-shadow: 0 0 0 1px var(--border);
-  }
+        @keyframes breathe-border {
+            0%, 100% { border-color: var(--card-border); }
+            50% { border-color: rgba(255, 215, 0, 0.35); }
+        }
 
-  .title {
-    font-size: 13px;
-    opacity: .75;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+        /* Header */
+        .title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gold-accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
 
-  /* 🔴 Live Dot */
-  .live-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--live);
-    animation: pulse 1.2s ease-in-out infinite;
-  }
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--gold-accent);
+            font-weight: 700;
+        }
 
-  @keyframes pulse {
-    0%   { transform: scale(1); opacity: 1; }
-    50%  { transform: scale(1.4); opacity: .5; }
-    100% { transform: scale(1); opacity: 1; }
-  }
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffaa00;
+            box-shadow: 0 0 8px #ffaa00;
+            animation: pulse 2s infinite ease-in-out;
+        }
 
-  .row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    font-size: 13px;
-  }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
-  .row + .row {
-    border-top: 1px solid var(--border);
-  }
+        /* Data Rows */
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(150, 150, 150, 0.05);
+        }
+        .row:last-of-type { border-bottom: none; }
 
-  .label { color: var(--muted); }
-  .value { font-variant-numeric: tabular-nums; }
+        .label {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
 
-  /* 🌅 Day Progress */
-  .day-wrap { margin-top: 14px; }
+        .value {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            /* Gold Gradient Text */
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Fallback color if gradient fails */
+            color: var(--gold-accent); 
+        }
 
-  .day-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    opacity: .7;
-    margin-bottom: 4px;
-  }
+        /* =========================================
+           PROGRESS BAR (The Smooth Liquid Gold)
+           ========================================= */
+        .day-wrap {
+            margin-top: 20px;
+        }
 
-  .day-bar {
-    width: 100%;
-    height: 6px;
-    background: rgba(0,0,0,0.1);
-    border-radius: 999px;
-    overflow: hidden;
-  }
+        .day-head {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
 
-  .day-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--normal-bar);
-    border-radius: 999px;
-    transition: width 0.6s ease, background 0.6s ease, box-shadow 0.6s ease;
-  }
+        .day-bar-container {
+            width: 100%;
+            height: 6px;
+            background: var(--bar-bg);
+            border-radius: 999px;
+            overflow: hidden;
+            /* Inner shadow for depth */
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); 
+        }
 
-  /* 🌟 Golden Hour Effect */
-  .golden {
-    background: var(--golden-bar) !important;
-    box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
-  }
-</style>
+        .day-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            
+            /* Seamless Loop Strategy: Start and End colors must match */
+            background: linear-gradient(
+                90deg, 
+                var(--bar-g1) 0%, 
+                var(--bar-g2) 50%, 
+                var(--bar-g3) 100%
+            );
+            background-size: 200% 100%;
+            
+            /* Smooth width transition */
+            transition: width 1s linear; 
+            
+            /* The Shimmer Animation */
+            animation: shimmer-flow 3s linear infinite;
+        }
+
+        /* Sparkle at tip */
+        .day-fill::after {
+            content: '';
+            display: block;
+            float: right;
+            height: 100%;
+            width: 2px;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 0 6px 2px rgba(255,255,255,0.6);
+        }
+
+        @keyframes shimmer-flow {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+
+    </style>
 </head>
-
 <body>
-<div class="container">
 
-  <div class="title">
-    Current Time Value
-    <span class="live-dot"></span>
-    Live
-  </div>
+    <canvas id="aura-canvas"></canvas>
 
-  <div class="row"><span class="label">1 second</span><span class="value" id="sec">—</span></div>
-  <div class="row"><span class="label">10 minutes</span><span class="value" id="tenMin">—</span></div>
-  <div class="row"><span class="label">1 hour</span><span class="value" id="hour">—</span></div>
-  <div class="row"><span class="label">12 hours</span><span class="value" id="halfDay">—</span></div>
-  <div class="row"><span class="label">1 day</span><span class="value" id="day">—</span></div>
+    <div class="container">
+        <div class="title">
+            <span>Time Value Aura</span>
+            <div class="live-badge">
+                LIVE <div class="live-dot"></div>
+            </div>
+        </div>
 
-  <div class="day-wrap">
-    <div class="day-head">
-      <span>Day completed</span>
-      <span id="dayPercent">0%</span>
+        <div class="row">
+            <span class="label">1 second</span>
+            <span class="value" id="sec">—</span>
+        </div>
+        <div class="row">
+            <span class="label">10 minutes</span>
+            <span class="value" id="tenMin">—</span>
+        </div>
+        <div class="row">
+            <span class="label">1 hour</span>
+            <span class="value" id="hour">—</span>
+        </div>
+        <div class="row">
+            <span class="label">12 hours</span>
+            <span class="value" id="halfDay">—</span>
+        </div>
+        <div class="row">
+            <span class="label">1 day</span>
+            <span class="value" id="day">—</span>
+        </div>
+
+        <div class="day-wrap">
+            <div class="day-head">
+                <span>Day Completed</span>
+                <span id="dayPercent">0%</span>
+            </div>
+            <div class="day-bar-container">
+                <div class="day-fill" id="dayFill"></div>
+            </div>
+        </div>
     </div>
-    <div class="day-bar">
-      <div class="day-fill" id="dayFill"></div>
-    </div>
-  </div>
 
-</div>
+    <script>
+        /* =========================================
+           LOGIC: TIME VALUE
+           ========================================= */
+        const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
+        const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
-<script>
-  /* 🌟 Golden Hours */
-  const GOLDEN_HOURS = [
-    { start: 8, end: 11 },
-    { start: 16, end: 18 }
-  ];
+        function format(seconds) {
+            seconds = Math.ceil(seconds);
+            const d = Math.floor(seconds / 86400);
+            seconds %= 86400;
+            const h = Math.floor(seconds / 3600);
+            seconds %= 3600;
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            
+            // Adaptive formatting
+            if (d > 0) return `${d}d ${h}h`; 
+            if (h > 0) return `${h}h ${m}m`; 
+            if (m > 0) return `${m}m ${s}s`; 
+            return `${s}s`;
+        }
 
-  /* Exam Dates */
-  const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
-  const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
+        function updateTimeValue() {
+            const now = new Date();
+            const remaining = (EXAM_2026 - now) / 1000;
+            const penalty = (EXAM_2027 - EXAM_2026) / 1000;
 
-  function format(seconds) {
-    seconds = Math.ceil(seconds);
-    const d = Math.floor(seconds / 86400); seconds %= 86400;
-    const h = Math.floor(seconds / 3600); seconds %= 3600;
-    const m = Math.floor(seconds / 60);
-    if (d) return `${d}d ${h}h`;
-    if (h) return `${h}h ${m}m`;
-    if (m) return `${m}m`;
-    return `${seconds}s`;
-  }
+            if (!isFinite(remaining) || remaining <= 0) {
+                document.querySelectorAll(".value").forEach(v => v.textContent = "Passed");
+                return;
+            }
 
-  function updateTimeValue() {
-    const now = new Date();
-    const remaining = (EXAM_2026 - now) / 1000;
-    const penalty = (EXAM_2027 - EXAM_2026) / 1000;
-    const TVR = (remaining + penalty) / remaining;
+            const TVR = (remaining + penalty) / remaining;
 
-    document.getElementById("sec").textContent = format(1 * TVR);
-    document.getElementById("tenMin").textContent = format(600 * TVR);
-    document.getElementById("hour").textContent = format(3600 * TVR);
-    document.getElementById("halfDay").textContent = format(43200 * TVR);
-    document.getElementById("day").textContent = format(86400 * TVR);
-  }
+            document.getElementById("sec").textContent = format(1 * TVR);
+            document.getElementById("tenMin").textContent = format(600 * TVR);
+            document.getElementById("hour").textContent = format(3600 * TVR);
+            document.getElementById("halfDay").textContent= format(43200 * TVR);
+            document.getElementById("day").textContent = format(86400 * TVR);
+        }
 
-  function updateDayProgress() {
-    const now = new Date();
-    const secondsToday = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
-    const percent = (secondsToday / 86400) * 100;
+        function updateDayProgress() {
+            const now = new Date();
+            const secondsToday = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const percent = (secondsToday / 86400) * 100;
 
-    document.getElementById("dayPercent").textContent = percent.toFixed(0) + "%";
-    const fill = document.getElementById("dayFill");
-    fill.style.width = percent + "%";
+            document.getElementById("dayPercent").textContent = percent.toFixed(1) + "%";
+            document.getElementById("dayFill").style.width = percent + "%";
+        }
 
-    // 🌟 Golden Hour Detection
-    const hour = now.getHours();
-    const isGolden = GOLDEN_HOURS.some(g => hour >= g.start && hour < g.end);
-    fill.classList.toggle("golden", isGolden);
-  }
+        /* =========================================
+           VISUALS: ADAPTIVE PARTICLES
+           ========================================= */
+        const canvas = document.getElementById('aura-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
 
-  updateTimeValue();
-  updateDayProgress();
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        }
+        window.addEventListener('resize', resizeCanvas);
 
-  setInterval(updateTimeValue, 60000);
-  setInterval(updateDayProgress, 1000);
-</script>
+        // Get particle color from CSS variables (adapts to light/dark)
+        function getParticleColor() {
+            return getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim();
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speedX = (Math.random() * 0.3) - 0.15;
+                this.speedY = (Math.random() * 0.3) - 0.15;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Seamless screen wrapping
+                if (this.x > canvas.width) this.x = 0;
+                else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                else if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = getParticleColor();
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            // Widget optimization: Fewer particles for battery saving
+            let numberOfParticles = (canvas.width * canvas.height) / 15000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        // Initialize
+        updateTimeValue();
+        updateDayProgress();
+        resizeCanvas();
+        animateParticles();
+        
+        // Loops
+        setInterval(updateTimeValue, 1000); 
+        setInterval(updateDayProgress, 1000);
+
+    </script>
 </body>
 </html>
+
