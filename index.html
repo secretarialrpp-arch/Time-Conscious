@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Time Value Awareness — Live</title>
+<title>Time Value Awareness — Golden</title>
 
 <style>
   :root {
@@ -13,23 +13,20 @@
     --text: #111;
     --muted: rgba(0,0,0,0.55);
 
-    --live-red: #ef4444;
+    --live: #ef4444;
     --gold: #f59e0b;
-    --gold-soft: rgba(245,158,11,0.18);
+    --gold-soft: rgba(245,158,11,0.25);
+    --gold-glow: rgba(245,158,11,0.45);
+  }
 
-    --bar-normal: linear-gradient(
-      90deg,
-      #3b82f6,
-      #ef4444,
-      #3b82f6
-    );
-
-    --bar-golden: linear-gradient(
-      90deg,
-      #facc15,
-      #f59e0b,
-      #facc15
-    );
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --card: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.06);
+      --text: #e8e8e8;
+      --muted: rgba(255,255,255,0.6);
+    }
   }
 
   body {
@@ -46,45 +43,65 @@
     padding: 14px 16px;
     background: var(--card);
     box-shadow: 0 0 0 1px var(--border);
+    transition: all 0.8s ease;
     position: relative;
     overflow: hidden;
-    transition: background 0.6s ease, box-shadow 0.6s ease;
   }
 
-  /* 🌟 Golden mode */
+  /* 🌟 GOLDEN MODE */
   .golden-mode {
-    background:
-      linear-gradient(120deg, var(--card), var(--gold-soft), var(--card));
     box-shadow:
-      0 0 0 1px rgba(245,158,11,0.25),
-      0 0 18px rgba(245,158,11,0.25);
+      0 0 0 1px rgba(245,158,11,0.5),
+      0 0 18px var(--gold-glow);
+  }
+
+  .golden-mode::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(245,158,11,0.08) 40%,
+      transparent 60%
+    );
+    animation: shimmer 6s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
   }
 
   .title {
     font-size: 13px;
-    opacity: .75;
+    opacity: .8;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
+  /* 🔴 / 🌟 Live Dot */
   .live-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--live-red);
+    background: var(--live);
     animation: pulse 1.2s ease-in-out infinite;
+    transition: background 0.6s ease, box-shadow 0.6s ease;
   }
 
   .golden-mode .live-dot {
     background: var(--gold);
-    box-shadow: 0 0 6px rgba(245,158,11,0.8);
+    box-shadow: 0 0 10px var(--gold-glow);
+    animation-duration: 1s;
   }
 
   @keyframes pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.4); opacity: .5; }
+    0%   { transform: scale(1); opacity: 1; }
+    50%  { transform: scale(1.4); opacity: .6; }
     100% { transform: scale(1); opacity: 1; }
   }
 
@@ -102,14 +119,18 @@
   .label { color: var(--muted); }
   .value { font-variant-numeric: tabular-nums; }
 
-  /* 🌅 Day progress */
+  .golden-mode .value {
+    color: var(--gold);
+  }
+
+  /* 🌅 Day Progress */
   .day-wrap { margin-top: 14px; }
 
   .day-head {
     display: flex;
     justify-content: space-between;
     font-size: 12px;
-    opacity: .7;
+    opacity: .75;
     margin-bottom: 4px;
   }
 
@@ -124,21 +145,13 @@
   .day-fill {
     height: 100%;
     width: 0%;
-    background: var(--bar-normal);
-    background-size: 200% 100%;
-    animation: flow 6s linear infinite;
+    background: linear-gradient(90deg, #3b82f6, #ef4444);
     border-radius: 999px;
-    transition: width 0.8s ease;
+    transition: width 0.6s ease, background 0.6s ease;
   }
 
   .golden-mode .day-fill {
-    background: var(--bar-golden);
-    animation-duration: 4s;
-  }
-
-  @keyframes flow {
-    from { background-position: 0% 0%; }
-    to   { background-position: 200% 0%; }
+    background: linear-gradient(90deg, #facc15, #f59e0b);
   }
 </style>
 </head>
@@ -171,9 +184,9 @@
 </div>
 
 <script>
-  /* 🌟 Golden hours */
+  /* 🌟 Golden Hours */
   const GOLDEN_WINDOWS = [
-    { start: 8, end: 11 },
+    { start: 8,  end: 11 },
     { start: 16, end: 18 }
   ];
 
@@ -183,7 +196,7 @@
   function format(seconds) {
     seconds = Math.ceil(seconds);
     const d = Math.floor(seconds / 86400); seconds %= 86400;
-    const h = Math.floor(seconds / 3600); seconds %= 3600;
+    const h = Math.floor(seconds / 3600);  seconds %= 3600;
     const m = Math.floor(seconds / 60);
     if (d) return `${d}d ${h}h`;
     if (h) return `${h}h ${m}m`;
@@ -197,34 +210,26 @@
     const penalty = (EXAM_2027 - EXAM_2026) / 1000;
     const TVR = (remaining + penalty) / remaining;
 
-    sec.textContent = format(1 * TVR);
-    tenMin.textContent = format(600 * TVR);
-    hour.textContent = format(3600 * TVR);
-    halfDay.textContent = format(43200 * TVR);
-    day.textContent = format(86400 * TVR);
+    document.getElementById("sec").textContent = format(1 * TVR);
+    document.getElementById("tenMin").textContent = format(600 * TVR);
+    document.getElementById("hour").textContent = format(3600 * TVR);
+    document.getElementById("halfDay").textContent = format(43200 * TVR);
+    document.getElementById("day").textContent = format(86400 * TVR);
   }
-
-  let displayedPercent = 0;
 
   function updateDayProgress() {
     const now = new Date();
-    const secondsToday =
-      now.getHours()*3600 +
-      now.getMinutes()*60 +
-      now.getSeconds();
+    const secondsToday = now.getHours()*3600 + now.getMinutes()*60 + now.getSeconds();
+    const percent = (secondsToday / 86400) * 100;
 
-    const targetPercent = (secondsToday / 86400) * 100;
-    displayedPercent += (targetPercent - displayedPercent) * 0.08;
+    document.getElementById("dayPercent").textContent = percent.toFixed(0) + "%";
+    document.getElementById("dayFill").style.width = percent + "%";
 
-    dayPercent.textContent = displayedPercent.toFixed(1) + "%";
-    dayFill.style.width = displayedPercent + "%";
+    const hour = now.getHours();
+    const isGolden = GOLDEN_WINDOWS.some(w => hour >= w.start && hour < w.end);
 
-    const hourNow = now.getHours();
-    const isGolden = GOLDEN_WINDOWS.some(w =>
-      hourNow >= w.start && hourNow < w.end
-    );
-
-    container.classList.toggle("golden-mode", isGolden);
+    document.getElementById("container")
+      .classList.toggle("golden-mode", isGolden);
   }
 
   updateTimeValue();
