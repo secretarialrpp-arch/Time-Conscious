@@ -1,256 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Time Value — Golden Aura</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Time Value — Molten Frame</title>
 
 <style>
-:root {
-    --bg: radial-gradient(circle at 50% 0%, #1a1500 0%, #000 80%);
-    --card-bg: rgba(10,10,10,0.65);
-    --border: rgba(255,215,0,0.18);
-    --shadow: 0 30px 70px rgba(0,0,0,.9),
-              inset 0 0 25px rgba(255,215,0,.04);
-    --text: #e8e8e8;
-    --muted: rgba(255,255,255,.5);
-    --particle: rgba(255,215,0,.35);
-    --bar-bg: rgba(255,255,255,.08);
+:root{
+  --bg: radial-gradient(circle at 50% 0%, #1a1500 0%, #000 80%);
+  --card-bg: rgba(6,6,6,.7);
+  --text:#e8e8e8;
+  --muted:rgba(255,255,255,.45);
+
+  --p:0;          /* progress 0–1 */
+  --surge:0;      /* micro impulse */
+
+  --molten-core: linear-gradient(
+    120deg,
+    #1f1600 0%,
+    #4d3600 18%,
+    #b88900 38%,
+    #ffd866 50%,
+    #b88900 62%,
+    #4d3600 82%,
+    #1f1600 100%
+  );
 }
 
-/* ===== LAYOUT ===== */
-body {
-    margin: 0;
-    background: var(--bg);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: var(--text);
-    overflow: hidden;
+/* ===== Layout ===== */
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--bg);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--text);
 }
 
-#aura-canvas {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+/* ===== Molten Frame Card ===== */
+.container{
+  position:relative;
+  width:340px;
+  padding:22px;
+  border-radius:22px;
+  background:var(--card-bg);
+  backdrop-filter:blur(18px);
+  isolation:isolate;
 }
 
-.container {
-    position: relative;
-    z-index: 2;
-    width: 340px;
-    padding: 22px;
-    border-radius: 20px;
-    background: var(--card-bg);
-    backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+/* STRUCTURAL RIM */
+.container::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:24px;
+  background:
+    linear-gradient(180deg,
+      rgba(255,215,120,.25),
+      rgba(80,55,0,.9));
+  z-index:-2;
 }
 
-/* ===== HEADER ===== */
-.title {
-    display: flex;
-    justify-content: space-between;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255,255,255,.08);
+/* MOLTEN FLOW BAND */
+.container::after{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:26px;
+  background:
+    var(--molten-core);
+  background-size:300% 100%;
+  animation: molten-flow 14s linear infinite;
+  filter:
+    saturate(1.2)
+    contrast(1.15);
+  opacity:calc(.35 + var(--p)*.45);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  padding:3px;
+  z-index:-1;
 }
 
-.title-text {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    background: linear-gradient(
-        120deg,
-        #3b2a00,
-        #8f6a00,
-        #ffd700,
-        #fff2b0,
-        #ffd700,
-        #8f6a00,
-        #3b2a00
-    );
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+/* HOT EDGE SHEAR */
+.container .shear{
+  pointer-events:none;
+  position:absolute;
+  inset:-6px;
+  border-radius:28px;
+  background:
+    linear-gradient(100deg,
+      transparent 35%,
+      rgba(255,220,120,.35) 50%,
+      transparent 65%);
+  background-size:200% 100%;
+  animation: shear-pass 6s linear infinite;
+  mix-blend-mode:screen;
+  opacity:calc(.15 + var(--surge));
 }
 
-.live {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #ffd700;
+/* ===== Header ===== */
+.title{
+  display:flex;
+  justify-content:space-between;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.title-text,.live{
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  background:var(--molten-core);
+  background-size:200% 200%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  animation: breath 8s ease-in-out infinite;
+}
+.live{font-size:11px}
+.dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#ffd866;
+  box-shadow:0 0 12px rgba(255,215,120,.8);
+  animation:pulse 4s ease-in-out infinite;
 }
 
-.dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #fff2b0, #ffd700, #8f6a00);
-    box-shadow: 0 0 8px rgba(255,215,0,.8);
+/* ===== Rows ===== */
+.row{
+  display:flex;
+  justify-content:space-between;
+  padding:9px 0;
+  font-size:14px;
+}
+.label{color:var(--muted)}
+.value{
+  font-weight:600;
+  background:var(--molten-core);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 
-/* ===== ROWS ===== */
-.row {
-    display: flex;
-    justify-content: space-between;
-    padding: 9px 0;
-    font-size: 14px;
-    border-bottom: 1px solid rgba(255,255,255,.04);
+/* ===== Progress ===== */
+.day-wrap{margin-top:18px}
+.day-head{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
 }
-.label { color: var(--muted); }
-
-.value {
-    font-weight: 600;
-    background: linear-gradient(
-        120deg,
-        #4a3500,
-        #8f6a00,
-        #ffd700,
-        #fff2b0,
-        #ffd700,
-        #8f6a00,
-        #4a3500
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+#dayPercent{
+  font-weight:800;
+  background:var(--molten-core);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
-
-/* ===== DAY PROGRESS ===== */
-.day-wrap { margin-top: 18px; }
-
-.day-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    margin-bottom: 6px;
+.bar{
+  height:6px;
+  margin-top:6px;
+  background:rgba(255,255,255,.08);
+  border-radius:999px;
+  overflow:hidden;
+}
+.fill{
+  height:100%;
+  width:0%;
+  background:var(--molten-core);
+  background-size:300% 100%;
+  animation: molten-flow 8s linear infinite;
+  transition:width 1s linear;
 }
 
-#dayPercent {
-    font-weight: 800;
-    background: linear-gradient(
-        120deg,
-        #3b2a00,
-        #8f6a00,
-        #ffd700,
-        #fff2b0,
-        #ffd700,
-        #8f6a00,
-        #3b2a00
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+/* ===== Animations ===== */
+@keyframes molten-flow{
+  from{background-position:0% 0}
+  to{background-position:300% 0}
 }
-
-/* ===== SEAMLESS BAR ===== */
-.bar {
-    height: 6px;
-    background: var(--bar-bg);
-    border-radius: 999px;
-    overflow: hidden;
-    position: relative;
+@keyframes shear-pass{
+  from{background-position:200% 0}
+  to{background-position:-200% 0}
 }
-
-/* Base gold */
-.fill {
-    height: 100%;
-    width: 0%;
-    position: relative;
-    border-radius: 999px;
-    background: linear-gradient(
-        120deg,
-        #3b2a00,
-        #8f6a00,
-        #ffd700,
-        #b8860b,
-        #3b2a00
-    );
-    overflow: hidden;
-    transition: width 1s linear;
+@keyframes breath{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
 }
-
-/* Flow container */
-.flow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200%;
-    height: 100%;
-    display: flex;
-    animation: flow-move 4s linear infinite;
-    will-change: transform;
-}
-
-/* Light band */
-.band {
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255,240,180,.25) 35%,
-        rgba(255,255,255,.45) 50%,
-        rgba(255,240,180,.25) 65%,
-        transparent 100%
-    );
-}
-
-/* Duplicate band */
-.band.clone {
-    margin-left: 0;
-}
-
-@keyframes flow-move {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+@keyframes pulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.5);opacity:.5}
 }
 </style>
 </head>
-
 <body>
-<canvas id="aura-canvas"></canvas>
 
 <div class="container">
-    <div class="title">
-        <span class="title-text">Time Value Aura</span>
-        <div class="live">LIVE <div class="dot"></div></div>
-    </div>
+  <div class="shear"></div>
 
-    <div class="row"><span class="label">1 second</span><span class="value" id="sec"></span></div>
-    <div class="row"><span class="label">10 minutes</span><span class="value" id="ten"></span></div>
-    <div class="row"><span class="label">1 hour</span><span class="value" id="hr"></span></div>
-    <div class="row"><span class="label">12 hours</span><span class="value" id="half"></span></div>
-    <div class="row"><span class="label">1 day</span><span class="value" id="day"></span></div>
+  <div class="title">
+    <span class="title-text">Time Value Aura</span>
+    <span class="live">LIVE <span class="dot"></span></span>
+  </div>
 
-    <div class="day-wrap">
-        <div class="day-head">
-            <span class="label">Day Completed</span>
-            <span id="dayPercent"></span>
-        </div>
-        <div class="bar">
-            <div class="fill" id="fill">
-                <div class="flow">
-                    <div class="band"></div>
-                    <div class="band clone"></div>
-                </div>
-            </div>
-        </div>
+  <div class="row"><span class="label">1 second</span><span class="value" id="sec"></span></div>
+  <div class="row"><span class="label">10 minutes</span><span class="value" id="ten"></span></div>
+  <div class="row"><span class="label">1 hour</span><span class="value" id="hr"></span></div>
+  <div class="row"><span class="label">12 hours</span><span class="value" id="half"></span></div>
+  <div class="row"><span class="label">1 day</span><span class="value" id="day"></span></div>
+
+  <div class="day-wrap">
+    <div class="day-head">
+      <span class="label">Day Completed</span>
+      <span id="dayPercent"></span>
     </div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
 </div>
 
 <script>
-function update(){
-    const n=new Date();
-    const s=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();
-    const p=s/86400*100;
-    document.getElementById("dayPercent").textContent=p.toFixed(1)+"%";
-    document.getElementById("fill").style.width=p+"%";
+function fmt(s){
+  s=Math.ceil(s);
+  const h=Math.floor(s/3600);s%=3600;
+  const m=Math.floor(s/60);const sec=s%60;
+  if(h)return`${h}h ${m}m`;
+  if(m)return`${m}m ${sec}s`;
+  return`${sec}s`;
 }
-setInterval(update,1000); update();
+
+let last=0;
+function update(){
+  sec.textContent=fmt(4);
+  ten.textContent=fmt(2387);
+  hr.textContent=fmt(14388);
+  half.textContent=fmt(86300);
+  day.textContent=fmt(259000);
+
+  const n=new Date();
+  const s=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();
+  const p=s/86400;
+  const surge=Math.max(0,(p-last)*12);
+
+  document.documentElement.style.setProperty("--p",p.toFixed(3));
+  document.documentElement.style.setProperty("--surge",surge.toFixed(2));
+
+  dayPercent.textContent=(p*100).toFixed(1)+"%";
+  fill.style.width=(p*100)+"%";
+
+  last=p;
+}
+setInterval(update,1000);update();
 </script>
 </body>
 </html>
