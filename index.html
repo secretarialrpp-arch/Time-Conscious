@@ -15,20 +15,21 @@
 
     --live-red: #ef4444;
     --gold: #f59e0b;
-    --gold-soft: rgba(245,158,11,0.15);
+    --gold-soft: rgba(245,158,11,0.18);
 
-    --bar-normal: linear-gradient(90deg, #3b82f6, #ef4444);
-    --bar-golden: linear-gradient(90deg, #facc15, #f59e0b);
-  }
+    --bar-normal: linear-gradient(
+      90deg,
+      #3b82f6,
+      #ef4444,
+      #3b82f6
+    );
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0f1115;
-      --card: rgba(255,255,255,0.03);
-      --border: rgba(255,255,255,0.06);
-      --text: #e8e8e8;
-      --muted: rgba(255,255,255,0.6);
-    }
+    --bar-golden: linear-gradient(
+      90deg,
+      #facc15,
+      #f59e0b,
+      #facc15
+    );
   }
 
   body {
@@ -50,40 +51,13 @@
     transition: background 0.6s ease, box-shadow 0.6s ease;
   }
 
-  /* 🌟 Golden Hour Mode */
+  /* 🌟 Golden mode */
   .golden-mode {
     background:
-      linear-gradient(
-        120deg,
-        var(--card),
-        var(--gold-soft),
-        var(--card)
-      );
+      linear-gradient(120deg, var(--card), var(--gold-soft), var(--card));
     box-shadow:
       0 0 0 1px rgba(245,158,11,0.25),
       0 0 18px rgba(245,158,11,0.25);
-  }
-
-  /* 🌟 Subtle shimmer */
-  .golden-mode::after {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-      120deg,
-      transparent 40%,
-      rgba(255,255,255,0.12),
-      transparent 60%
-    );
-    animation: shimmer 6s linear infinite;
-  }
-
-  @keyframes shimmer {
-    from { transform: translateX(-30%); }
-    to   { transform: translateX(30%); }
   }
 
   .title {
@@ -93,11 +67,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    position: relative;
-    z-index: 1;
   }
 
-  /* 🔴 / 🌟 Live dot */
   .live-dot {
     width: 8px;
     height: 8px;
@@ -112,8 +83,8 @@
   }
 
   @keyframes pulse {
-    0%   { transform: scale(1); opacity: 1; }
-    50%  { transform: scale(1.4); opacity: .5; }
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: .5; }
     100% { transform: scale(1); opacity: 1; }
   }
 
@@ -122,8 +93,6 @@
     justify-content: space-between;
     padding: 6px 0;
     font-size: 13px;
-    position: relative;
-    z-index: 1;
   }
 
   .row + .row {
@@ -133,8 +102,8 @@
   .label { color: var(--muted); }
   .value { font-variant-numeric: tabular-nums; }
 
-  /* 🌅 Day Progress */
-  .day-wrap { margin-top: 14px; position: relative; z-index: 1; }
+  /* 🌅 Day progress */
+  .day-wrap { margin-top: 14px; }
 
   .day-head {
     display: flex;
@@ -156,12 +125,20 @@
     height: 100%;
     width: 0%;
     background: var(--bar-normal);
+    background-size: 200% 100%;
+    animation: flow 6s linear infinite;
     border-radius: 999px;
-    transition: width 0.6s ease, background 0.6s ease;
+    transition: width 0.8s ease;
   }
 
   .golden-mode .day-fill {
     background: var(--bar-golden);
+    animation-duration: 4s;
+  }
+
+  @keyframes flow {
+    from { background-position: 0% 0%; }
+    to   { background-position: 200% 0%; }
   }
 </style>
 </head>
@@ -194,20 +171,19 @@
 </div>
 
 <script>
-  /* 🌟 Golden Hours */
+  /* 🌟 Golden hours */
   const GOLDEN_WINDOWS = [
-    { start: 8,  end: 11 },
+    { start: 8, end: 11 },
     { start: 16, end: 18 }
   ];
 
-  /* ===== Exam Dates ===== */
   const EXAM_2026 = new Date(Date.UTC(2026, 4, 2, 24, 0, 0));
   const EXAM_2027 = new Date(Date.UTC(2027, 4, 2, 24, 0, 0));
 
   function format(seconds) {
     seconds = Math.ceil(seconds);
     const d = Math.floor(seconds / 86400); seconds %= 86400;
-    const h = Math.floor(seconds / 3600);  seconds %= 3600;
+    const h = Math.floor(seconds / 3600); seconds %= 3600;
     const m = Math.floor(seconds / 60);
     if (d) return `${d}d ${h}h`;
     if (h) return `${h}h ${m}m`;
@@ -221,12 +197,14 @@
     const penalty = (EXAM_2027 - EXAM_2026) / 1000;
     const TVR = (remaining + penalty) / remaining;
 
-    document.getElementById("sec").textContent = format(1 * TVR);
-    document.getElementById("tenMin").textContent = format(600 * TVR);
-    document.getElementById("hour").textContent = format(3600 * TVR);
-    document.getElementById("halfDay").textContent = format(43200 * TVR);
-    document.getElementById("day").textContent = format(86400 * TVR);
+    sec.textContent = format(1 * TVR);
+    tenMin.textContent = format(600 * TVR);
+    hour.textContent = format(3600 * TVR);
+    halfDay.textContent = format(43200 * TVR);
+    day.textContent = format(86400 * TVR);
   }
+
+  let displayedPercent = 0;
 
   function updateDayProgress() {
     const now = new Date();
@@ -235,19 +213,18 @@
       now.getMinutes()*60 +
       now.getSeconds();
 
-    const percent = (secondsToday / 86400) * 100;
-    const hour = now.getHours();
+    const targetPercent = (secondsToday / 86400) * 100;
+    displayedPercent += (targetPercent - displayedPercent) * 0.08;
 
-    document.getElementById("dayPercent").textContent =
-      percent.toFixed(0) + "%";
-    document.getElementById("dayFill").style.width = percent + "%";
+    dayPercent.textContent = displayedPercent.toFixed(1) + "%";
+    dayFill.style.width = displayedPercent + "%";
 
+    const hourNow = now.getHours();
     const isGolden = GOLDEN_WINDOWS.some(w =>
-      hour >= w.start && hour < w.end
+      hourNow >= w.start && hourNow < w.end
     );
 
-    document.getElementById("container")
-      .classList.toggle("golden-mode", isGolden);
+    container.classList.toggle("golden-mode", isGolden);
   }
 
   updateTimeValue();
