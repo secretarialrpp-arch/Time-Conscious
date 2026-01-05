@@ -1,255 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Time Value — Molten Frame</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS Professional — Exam Reality</title>
 
 <style>
-:root{
-  --bg: radial-gradient(circle at 50% 0%, #1a1500 0%, #000 80%);
-  --card-bg: rgba(6,6,6,.7);
-  --text:#e8e8e8;
-  --muted:rgba(255,255,255,.45);
+  :root {
+    --bg: #ffffff;
+    --card: rgba(0,0,0,0.03);
+    --border: rgba(0,0,0,0.08);
+    --text: #111;
+    --muted: rgba(0,0,0,0.55);
+    --danger: #ef4444;
+    --primary: linear-gradient(90deg, #3b82f6, #ef4444);
+  }
 
-  --p:0;          /* progress 0–1 */
-  --surge:0;      /* micro impulse */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --card: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.06);
+      --text: #e8e8e8;
+      --muted: rgba(255,255,255,0.5);
+    }
+  }
 
-  --molten-core: linear-gradient(
-    120deg,
-    #1f1600 0%,
-    #4d3600 18%,
-    #b88900 38%,
-    #ffd866 50%,
-    #b88900 62%,
-    #4d3600 82%,
-    #1f1600 100%
-  );
-}
+  body {
+    margin: 0;
+    padding: 16px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, Inter, sans-serif;
+  }
 
-/* ===== Layout ===== */
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:var(--bg);
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  color:var(--text);
-}
+  .container {
+    max-width: 340px;
+    border-radius: 16px;
+    padding: 16px;
+    background: var(--card);
+    box-shadow: 0 0 0 1px var(--border);
+  }
 
-/* ===== Molten Frame Card ===== */
-.container{
-  position:relative;
-  width:340px;
-  padding:22px;
-  border-radius:22px;
-  background:var(--card-bg);
-  backdrop-filter:blur(18px);
-  isolation:isolate;
-}
+  .title {
+    font-size: 12px;
+    opacity: .75;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
 
-/* STRUCTURAL RIM */
-.container::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:24px;
-  background:
-    linear-gradient(180deg,
-      rgba(255,215,120,.25),
-      rgba(80,55,0,.9));
-  z-index:-2;
-}
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--danger);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
 
-/* MOLTEN FLOW BAND */
-.container::after{
-  content:"";
-  position:absolute;
-  inset:-4px;
-  border-radius:26px;
-  background:
-    var(--molten-core);
-  background-size:300% 100%;
-  animation: molten-flow 14s linear infinite;
-  filter:
-    saturate(1.2)
-    contrast(1.15);
-  opacity:calc(.35 + var(--p)*.45);
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  padding:3px;
-  z-index:-1;
-}
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: .5; }
+    100% { transform: scale(1); opacity: 1; }
+  }
 
-/* HOT EDGE SHEAR */
-.container .shear{
-  pointer-events:none;
-  position:absolute;
-  inset:-6px;
-  border-radius:28px;
-  background:
-    linear-gradient(100deg,
-      transparent 35%,
-      rgba(255,220,120,.35) 50%,
-      transparent 65%);
-  background-size:200% 100%;
-  animation: shear-pass 6s linear infinite;
-  mix-blend-mode:screen;
-  opacity:calc(.15 + var(--surge));
-}
+  .section {
+    margin-bottom: 16px;
+  }
 
-/* ===== Header ===== */
-.title{
-  display:flex;
-  justify-content:space-between;
-  padding-bottom:10px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
-.title-text,.live{
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  background:var(--molten-core);
-  background-size:200% 200%;
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  animation: breath 8s ease-in-out infinite;
-}
-.live{font-size:11px}
-.dot{
-  width:8px;height:8px;border-radius:50%;
-  background:#ffd866;
-  box-shadow:0 0 12px rgba(255,215,120,.8);
-  animation:pulse 4s ease-in-out infinite;
-}
+  .label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
 
-/* ===== Rows ===== */
-.row{
-  display:flex;
-  justify-content:space-between;
-  padding:9px 0;
-  font-size:14px;
-}
-.label{color:var(--muted)}
-.value{
-  font-weight:600;
-  background:var(--molten-core);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
+  .value {
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+  }
 
-/* ===== Progress ===== */
-.day-wrap{margin-top:18px}
-.day-head{
-  display:flex;
-  justify-content:space-between;
-  font-size:12px;
-}
-#dayPercent{
-  font-weight:800;
-  background:var(--molten-core);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-}
-.bar{
-  height:6px;
-  margin-top:6px;
-  background:rgba(255,255,255,.08);
-  border-radius:999px;
-  overflow:hidden;
-}
-.fill{
-  height:100%;
-  width:0%;
-  background:var(--molten-core);
-  background-size:300% 100%;
-  animation: molten-flow 8s linear infinite;
-  transition:width 1s linear;
-}
+  .bar {
+    width: 100%;
+    height: 8px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
 
-/* ===== Animations ===== */
-@keyframes molten-flow{
-  from{background-position:0% 0}
-  to{background-position:300% 0}
-}
-@keyframes shear-pass{
-  from{background-position:200% 0}
-  to{background-position:-200% 0}
-}
-@keyframes breath{
-  0%,100%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-}
-@keyframes pulse{
-  0%,100%{transform:scale(1);opacity:1}
-  50%{transform:scale(1.5);opacity:.5}
-}
+  .fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    transition: width 0.3s linear;
+  }
+
+  .shadow {
+    height: 4px;
+    background: rgba(239,68,68,0.35);
+    border-radius: 999px;
+    margin-top: 6px;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+
+  .decision {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+
+  .container:hover .decision,
+  .container:focus-within .decision {
+    opacity: 1;
+    max-height: 200px;
+    margin-top: 10px;
+  }
+
+  .decision strong {
+    color: var(--text);
+  }
 </style>
 </head>
+
 <body>
+<div class="container" tabindex="0">
 
-<div class="container">
-  <div class="shear"></div>
-
+  <!-- TITLE -->
   <div class="title">
-    <span class="title-text">Time Value Aura</span>
-    <span class="live">LIVE <span class="dot"></span></span>
+    CS Professional Exam
+    <span class="dot"></span>
+    Reality
   </div>
 
-  <div class="row"><span class="label">1 second</span><span class="value" id="sec"></span></div>
-  <div class="row"><span class="label">10 minutes</span><span class="value" id="ten"></span></div>
-  <div class="row"><span class="label">1 hour</span><span class="value" id="hr"></span></div>
-  <div class="row"><span class="label">12 hours</span><span class="value" id="half"></span></div>
-  <div class="row"><span class="label">1 day</span><span class="value" id="day"></span></div>
+  <!-- COUNTDOWN -->
+  <div class="section">
+    <div class="label">Exam starts in</div>
+    <div class="value" id="daysLeft">—</div>
 
-  <div class="day-wrap">
-    <div class="day-head">
-      <span class="label">Day Completed</span>
-      <span id="dayPercent"></span>
+    <div class="bar">
+      <div class="fill" id="examFill"></div>
     </div>
-    <div class="bar"><div class="fill" id="fill"></div></div>
+
+    <div class="label" style="margin-top:6px;">
+      Fail cost: +365 days
+    </div>
+    <div class="shadow"></div>
   </div>
+
+  <div class="divider"></div>
+
+  <!-- TIME VALUE -->
+  <div class="section">
+    <div class="row">
+      <span class="label">10 minutes</span>
+      <span class="value" id="tenMin">—</span>
+    </div>
+    <div class="row">
+      <span class="label">1 hour</span>
+      <span class="value" id="hour">—</span>
+    </div>
+    <div class="row">
+      <span class="label">1 day</span>
+      <span class="value" id="day">—</span>
+    </div>
+  </div>
+
+  <!-- DECISION FILTER -->
+  <div class="decision">
+    <strong>Decision check:</strong><br>
+    Would I trade <strong>1 full year of my life at age 25</strong>
+    for what I’m doing right now?
+  </div>
+
 </div>
 
 <script>
-function fmt(s){
-  s=Math.ceil(s);
-  const h=Math.floor(s/3600);s%=3600;
-  const m=Math.floor(s/60);const sec=s%60;
-  if(h)return`${h}h ${m}m`;
-  if(m)return`${m}m ${sec}s`;
-  return`${sec}s`;
-}
+  /* ===== EXAM CONSTANTS ===== */
 
-let last=0;
-function update(){
-  sec.textContent=fmt(4);
-  ten.textContent=fmt(2387);
-  hr.textContent=fmt(14388);
-  half.textContent=fmt(86300);
-  day.textContent=fmt(259000);
+  // Prep start (adjust if needed)
+  const START_DATE = new Date(2025, 0, 1);   // 1 Jan 2025
+  const EXAM_DATE  = new Date(2026, 11, 22); // 22 Dec 2026
 
-  const n=new Date();
-  const s=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();
-  const p=s/86400;
-  const surge=Math.max(0,(p-last)*12);
+  const PENALTY_SECONDS = 365 * 86400;
 
-  document.documentElement.style.setProperty("--p",p.toFixed(3));
-  document.documentElement.style.setProperty("--surge",surge.toFixed(2));
+  function formatExact(sec) {
+    sec = Math.floor(sec);
+    const d = Math.floor(sec / 86400);
+    sec %= 86400;
+    const h = Math.floor(sec / 3600);
+    sec %= 3600;
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
 
-  dayPercent.textContent=(p*100).toFixed(1)+"%";
-  fill.style.width=(p*100)+"%";
+    if (d) return `${d}d ${h}h`;
+    if (h) return `${h}h ${m}m`;
+    return `${m}m ${s}s`;
+  }
 
-  last=p;
-}
-setInterval(update,1000);update();
+  function update() {
+    const now = new Date();
+    const remaining = (EXAM_DATE - now) / 1000;
+    const totalWindow = (EXAM_DATE - START_DATE) / 1000;
+
+    if (remaining <= 0) {
+      daysLeft.textContent = "Exam in progress";
+      examFill.style.width = "100%";
+      return;
+    }
+
+    // Countdown
+    const days = Math.ceil(remaining / 86400);
+    daysLeft.textContent = `${days} days`;
+
+    // Linear exam progress (NO penalty mixed in)
+    const elapsed = totalWindow - remaining;
+    const progress = Math.max(0, Math.min(1, elapsed / totalWindow));
+    examFill.style.width = (progress * 100) + "%";
+
+    // Exam Time Value (penalty applied here ONLY)
+    const ETV = (remaining + PENALTY_SECONDS) / remaining;
+
+    tenMin.textContent = formatExact(600 * ETV);
+    hour.textContent   = formatExact(3600 * ETV);
+    day.textContent    = formatExact(86400 * ETV);
+  }
+
+  update();
+  setInterval(update, 1000);
 </script>
 </body>
 </html>
